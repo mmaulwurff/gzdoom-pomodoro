@@ -1,0 +1,198 @@
+class PomodoroEventHandler : StaticEventHandler
+{
+
+  enum PomodoroState
+  {
+    STATE_BREAK,
+    STATE_LONG_BREAK,
+    STATE_POMODORO,
+    STATE_WAIT_FOR_INPUT,
+  };
+
+  enum PomodoroCommand
+  {
+    COMMAND_NOTHING    = 0,
+    COMMAND_POMODORO   = 1,
+    COMMAND_BREAK      = 2,
+    COMMAND_LONG_BREAK = 3,
+  }
+
+  // all time is in seconds (except "ticks", obviously)
+  private ui int limit;
+
+  private ui PomodoroState timerState;
+  private ui bool initialized;
+
+  private ui int time;
+  private ui int ticks;
+  private ui int breakRemaining;
+  private ui int finishedPomodoroNumber;
+
+  private ui int  oldLevelTime;
+  private ui bool isPaused;
+  private ui bool isInputReceived;
+
+  ui int GetLimit()
+  {
+    return CVar.GetCVar("PomodoroDuration").GetInt() * 60;
+  }
+
+  ui int GetBreakLimit()
+  {
+    return CVar.GetCVar("PomodoroBreakDuration").GetInt() * 60;
+  }
+
+  ui int GetLongBreakLimit()
+  {
+    return CVar.GetCVar("PomodoroLongBreakDuration").GetInt() * 60;
+  }
+
+  ui int GetEnabled()
+  {
+    return CVar.GetCVar("PomodoroOn").GetInt();
+  }
+
+  ui int GetCommand()
+  {
+    return CVar.GetCVar("PomodoroCommand").GetInt();
+  }
+
+  ui void ResetCommand()
+  {
+    CVar.GetCVar("PomodoroCommand").SetInt(0);
+  }
+
+  ui string FormatTime(int seconds)
+  {
+    return StringStruct.Format( "%02d:%02d"
+                              , seconds / 60
+                              , seconds % 60
+                              );
+  }
+
+  ui void SetPomodoroState()
+  {
+    time       = 0;
+    timerState = STATE_POMODORO;
+    limit      = GetLimit();
+
+    Console.Printf("Pomodoro started, timer: %s", FormatTime(limit));
+  }
+
+  ui void SetBreakState()
+  {
+    time           = 0;
+    timerState     = STATE_BREAK;
+    limit          = GetBreakLimit();
+    breakRemaining = limit + 1;
+  }
+
+  ui void SetLongBreakState()
+  {
+    time           = 0;
+    timerState     = STATE_LONG_BREAK;
+    limit          = GetLongBreakLimit();
+    breakRemaining = limit + 1;
+  }
+
+  ui void SetWaitForInputState()
+  {
+    time       = 0;
+    timerState = STATE_WAIT_FOR_INPUT;
+    isInputReceived = false;
+
+    Console.Printf("Continue playing.");
+  }
+
+  ui void Initialize()
+  {
+    timerState = STATE_POMODORO;
+
+    time  = 0;
+    ticks = 0;
+
+    limit = GetLimit();
+
+    finishedPomodoroNumber = 0;
+
+    oldLevelTime = 0;
+    isPaused     = false;
+
+    initialized = true;
+  }
+
+  override void UiTick()
+  {
+    // initialization. Must be done only once
+    if (!initialized) { Initialize(); }
+
+    // Do nothing if disabled
+    if (GetEnabled() == false) { return; }
+
+    // Time counting. Act only once in a second.
+    ++ticks;
+    if (ticks >= 35)
+    {
+      ticks = 0;
+      ++time;
+    }
+    else { return; }
+
+    isPaused     = (level.time == oldLevelTime);
+    oldLevelTime = level.time;
+
+    // Command processing
+    PomodoroCommand command = GetCommand();
+    switch (command)
+    {
+    case COMMAND_NOTHING:                         break;
+    case COMMAND_POMODORO:   SetPomodoroState();  break;
+    case COMMAND_BREAK:      SetBreakState();     break;
+    case COMMAND_LONG_BREAK: SetLongBreakState(); break;
+    }
+    ResetCommand();
+
+    // Act according to the state
+    switch (timerState)
+    {
+    case STATE_BREAK:
+      --breakRemaining;
+      Console.Printf("Finished pomodoros: %d. Take a break: %s",
+                     finishedPomodoroNumber,
+                     FormatTime(breakRemaining));
+
+      if (time >= limit) { SetWaitForInputState(); }
+      break;
+
+    case STATE_LONG_BREAK:
+      --breakRemaining;
+      Console.Printf("Finished pomodoros: %d. Take a long break: %s",
+                     finishedPomodoroNumber,
+                     FormatTime(breakRemaining));
+
+      if (time >= limit) { SetWaitForInputState(); }
+      break;
+
+    case STATE_POMODORO:
+      if (time >= limit)
+      {
+        ++finishedPomodoroNumber;
+        if (finishedPomodoroNumber % 4 == 0) { SetLongBreakState(); }
+        else                                 { SetBreakState(); }
+      }
+      break;
+
+    case STATE_WAIT_FOR_INPUT:
+      if (isInputReceived) { SetPomodoroState(); }
+      break;
+    }
+  }
+
+  override bool InputProcess(InputEvent e)
+  {
+    if (!isPaused) { isInputReceived = true; }
+
+    return false;
+  }
+
+} // class PomodoroEventHandler : StaticEventHandler

@@ -1,0 +1,179 @@
+version "3.2.5"
+
+// TODO:
+//
+// settings:
+// - pomodoro duration
+// - break duration
+// - long break duration
+// - warning about that options take effect on new pomodoro on break
+// - command: start pomodoro
+// - command: start break
+// - command: start long break
+//
+// keys:
+// - force pomodoro
+// - force break
+// - open settings
+// - toggle pomodoro on/off
+
+class PomodoroEventHandler : StaticEventHandler
+{
+  enum PomodoroState
+  {
+    STATE_BREAK,
+    STATE_LONG_BREAK,
+    STATE_POMODORO,
+  };
+
+  enum PomodoroCommand
+  {
+    COMMAND_NOTHING = 0,
+    COMMAND_POMODORO = 1,
+    COMMAND_BREAK = 2,
+    COMMAND_LONG_BREAK = 3,
+  }
+
+  // all time is in seconds (except "ticks", obviously)
+  ui int limit;
+  ui int breakLimit;
+  ui int longBreakLimit;
+
+  ui PomodoroState timerState;
+  ui bool initialized;
+
+  ui int time;
+  ui int ticks;
+  ui int breakRemaining;
+  ui int finishedPomodoroNumber;
+
+  ui int GetLimit()
+  {
+    return CVar.FindCVar("PomodoroDuration").GetInt() * 60;
+  }
+
+  ui int GetBreakLimit()
+  {
+    return CVar.FindCVar("PomodoroBreakDuration").GetInt() * 60;
+  }
+
+  ui int GetLongBreakLimit()
+  {
+    return CVar.FindCVar("PomodoroLongBreakDuration").GetInt() * 60;
+  }
+
+  ui int GetEnabled()
+  {
+    return CVar.FindCVar("PomodoroOn").GetInt();
+  }
+
+  ui int GetCommand()
+  {
+    return CVar.FindCVar("PomodoroCommand").GetInt();
+  }
+
+  ui void ResetCommand()
+  {
+    CVar.FindCVar("PomodoroCommand").SetInt(0);
+  }
+
+  ui void SetPomodoroState()
+  {
+    time = 0;
+    timerState = STATE_POMODORO;
+    limit = GetLimit();
+    Console.Printf("Continue playing.");
+  }
+
+  ui void SetBreakState()
+  {
+    time = 0;
+    timerState = STATE_BREAK;
+    breakLimit = GetBreakLimit();
+    breakRemaining = breakLimit + 1;
+  }
+
+  ui void SetLongBreakState()
+  {
+    time = 0;
+    timerState = STATE_LONG_BREAK;
+    longBreakLimit = GetLongBreakLimit();
+    breakRemaining = longBreakLimit + 1;
+  }
+
+  override void UiTick()
+  {
+    // initialization. Must be done only once
+    if (!initialized)
+    {
+      timerState = STATE_POMODORO;
+
+      time = 0;
+      ticks = 0;
+
+      limit = GetLimit();
+      breakLimit = GetBreakLimit();
+      longBreakLimit = GetLongBreakLimit();
+
+      finishedPomodoroNumber = 0;
+
+      initialized = true;
+    }
+
+    // Do nothing if disabled
+    if (GetEnabled() == false) { return; }
+
+    // Time counting. Act only once in a second.
+    ++ticks;
+    if (ticks >= 35)
+    {
+      ticks = 0;
+      ++time;
+    }
+    else { return; }
+
+    // Command processing
+    PomodoroCommand command = GetCommand();
+    switch (command)
+    {
+    case COMMAND_NOTHING: break;
+    case COMMAND_POMODORO:   SetPomodoroState(); break;
+    case COMMAND_BREAK:      SetBreakState(); break;
+    case COMMAND_LONG_BREAK: SetLongBreakState(); break;
+    }
+    ResetCommand();
+
+    // Act according to the state
+    if (timerState == STATE_BREAK)
+    {
+      --breakRemaining;
+      Console.Printf("Finished pomodoros: %d. Take a break: %02d:%02d",
+                     finishedPomodoroNumber,
+                     breakRemaining / 60,
+                     breakRemaining % 60);
+
+      if (time >= breakLimit) { SetPomodoroState(); }
+    }
+
+    else if (timerState == STATE_LONG_BREAK)
+    {
+      --breakRemaining;
+      Console.Printf("Finished pomodoros: %d. Take a long break: %02d:%02d",
+                     finishedPomodoroNumber,
+                     breakRemaining / 60,
+                     breakRemaining % 60);
+
+      if (time >= longBreakLimit) { SetPomodoroState(); }
+    }
+
+    else
+    {
+      if (time >= limit)
+      {
+        ++finishedPomodoroNumber;
+        if (finishedPomodoroNumber % 4 == 0) { SetLongBreakState(); }
+        else                                 { SetBreakState(); }
+      }
+    }
+  }
+}

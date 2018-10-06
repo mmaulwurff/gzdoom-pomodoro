@@ -1,0 +1,40 @@
+OptionValue "AutoautosaveNoYes"
+{
+    0, "No"
+    1, "Yes"
+}
+
+OptionMenu "PomodoroOptions"
+{
+  Title "Pomodoro Options"
+
+  StaticText "This must be set to ON"
+  Option "$MSGMNU_SHOWMESSAGES", "show_messages", "OnOff"
+
+  StaticText ""
+  Slider "Pomodoro duration", "PomodoroDuration", 1, 60, 1, 0
+  Slider "Pomodoro break duration", "PomodoroBreakDuration", 1, 60, 1, 0
+  Slider "Pomodoro long break duration", "PomodoroLongBreakDuration", 1, 60, 1, 0
+  StaticText "(minutes)"
+  StaticText "Note: these settings take effect only on period start."
+
+  StaticText ""
+  StaticText "Pomodoro control panel"
+  Option "Pomodoro enabled", "PomodoroOn", "OnOff"
+  Command "Force Pomodoro Now", "PomodoroCommand 1"
+  Command "Force Break Now", "PomodoroCommand 2"
+  Command "Force Long Break Now", "PomodoroCommand 3"
+
+  StaticText ""
+  StaticText "Keys"
+  Control "Force Pomodoro", "PomodoroCommand 1"
+  Control "Force Break", "PomodoroCommand 2"
+  Control "Force Long Break", "PomodoroCommand 3"
+  Control "Toggle Pomodoro On/Off", "PomodoroToggle"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+  StaticText ""
+  Submenu "Pomodoro Options", "PomodoroOptions"
+}

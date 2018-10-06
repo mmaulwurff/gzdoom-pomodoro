@@ -3,3 +3,5 @@
 !*.txt
 !*.sh
 !.gitignore
+
+changelog.txt

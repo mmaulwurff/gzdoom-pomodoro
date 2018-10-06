@@ -1,40 +1,38 @@
-OptionValue "AutoautosaveNoYes"
+OptionMenu    "PomodoroOptions"
 {
-    0, "No"
-    1, "Yes"
-}
+  Title       "Pomodoro Options"
 
-OptionMenu "PomodoroOptions"
-{
-  Title "Pomodoro Options"
+  StaticText  ""
+  StaticText  "This must be set to ON"
+  Option      "$MSGMNU_SHOWMESSAGES"   , "show_messages", "OnOff"
 
-  StaticText "This must be set to ON"
-  Option "$MSGMNU_SHOWMESSAGES", "show_messages", "OnOff"
+  StaticText  ""
+  StaticText  "Duration"               , "Blue"
+  Slider      "Pomodoro"               , "PomodoroDuration"          , 1, 60, 1, 0
+  Slider      "Break"                  , "PomodoroBreakDuration"     , 1, 60, 1, 0
+  Slider      "Long Break"             , "PomodoroLongBreakDuration" , 1, 60, 1, 0
+  StaticText  "(minutes)"              , "Black"
+  StaticText  "Note: these settings take effect only on period start.", "Black"
 
-  StaticText ""
-  Slider "Pomodoro duration", "PomodoroDuration", 1, 60, 1, 0
-  Slider "Pomodoro break duration", "PomodoroBreakDuration", 1, 60, 1, 0
-  Slider "Pomodoro long break duration", "PomodoroLongBreakDuration", 1, 60, 1, 0
-  StaticText "(minutes)"
-  StaticText "Note: these settings take effect only on period start."
+  StaticText  ""
+  StaticText  "Control Panel"          , "Blue"
+  Option      "Pomodoro enabled"       , "PomodoroOn", "OnOff"
+  Command     "Force Pomodoro Now"     , "PomodoroCommand 1"
+  Command     "Force Break Now"        , "PomodoroCommand 2"
+  Command     "Force Long Break Now"   , "PomodoroCommand 3"
 
-  StaticText ""
-  StaticText "Pomodoro control panel"
-  Option "Pomodoro enabled", "PomodoroOn", "OnOff"
-  Command "Force Pomodoro Now", "PomodoroCommand 1"
-  Command "Force Break Now", "PomodoroCommand 2"
-  Command "Force Long Break Now", "PomodoroCommand 3"
+  StaticText  ""
+  StaticText  "Keys"                   , "Blue"
+  Control     "Force Pomodoro"         , "PomodoroCommand 1"
+  Control     "Force Break"            , "PomodoroCommand 2"
+  Control     "Force Long Break"       , "PomodoroCommand 3"
+  Control     "Toggle Pomodoro On/Off" , "PomodoroToggle"
 
-  StaticText ""
-  StaticText "Keys"
-  Control "Force Pomodoro", "PomodoroCommand 1"
-  Control "Force Break", "PomodoroCommand 2"
-  Control "Force Long Break", "PomodoroCommand 3"
-  Control "Toggle Pomodoro On/Off", "PomodoroToggle"
+  StaticText  ""
 }
 
 AddOptionMenu "OptionsMenu"
 {
-  StaticText ""
-  Submenu "Pomodoro Options", "PomodoroOptions"
+  StaticText  ""
+  Submenu     "Pomodoro Options"       , "PomodoroOptions"
 }

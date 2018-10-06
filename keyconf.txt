@@ -1,3 +1,10 @@
 alias PomodoroSwitchOff "PomodoroOn false; echo Pomodoro disabled"
 alias PomodoroSwitchOn  "PomodoroOn true; echo Pomodoro enabled"
-alias PomodoroToggle "test $PomodoroOn PomodoroSwitchOff PomodoroSwitchOn"
+alias PomodoroToggle    "test $PomodoroOn PomodoroSwitchOff PomodoroSwitchOn"
+
+AddKeySection "Pomodoro" "m8f_p_keys"
+
+AddMenuKey    "Force Pomodoro"         "PomodoroCommand 1"
+AddMenuKey    "Force Break"            "PomodoroCommand 2"
+AddMenuKey    "Force Long Break"       "PomodoroCommand 3"
+AddMenuKey    "Toggle Pomodoro On/Off" "PomodoroToggle"

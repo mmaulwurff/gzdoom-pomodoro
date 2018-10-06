@@ -29,6 +29,9 @@ OptionMenu    "PomodoroOptions"
   Control     "Toggle Pomodoro On/Off" , "PomodoroToggle"
 
   StaticText  ""
+  Control     "Pause Game"             , "pause"
+
+  StaticText  ""
 }
 
 AddOptionMenu "OptionsMenu"

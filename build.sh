@@ -26,6 +26,3 @@ gzdoom -glversion 3 \
        ~/Programs/Games/wads/maps/DOOMTEST.wad \
        "$1" "$2" \
        +map test \
-       \ #-nomonsters \
-       +notarget \
-       +summon doomimp

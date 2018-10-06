@@ -1,5 +1,5 @@
-user int PomodoroDuration = 25;
-user int PomodoroBreakDuration = 5;
-user int PomodoroLongBreakDuration = 15;
-user bool PomodoroOn = true;
-user int PomodoroCommand = 0;
+server int  PomodoroDuration          = 25;
+server int  PomodoroBreakDuration     =  5;
+server int  PomodoroLongBreakDuration = 15;
+server bool PomodoroOn                = true;
+server int  PomodoroCommand           = 0;

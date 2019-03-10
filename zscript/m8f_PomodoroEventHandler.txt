@@ -1,125 +1,7 @@
 class PomodoroEventHandler : StaticEventHandler
 {
 
-  enum PomodoroState
-  {
-    STATE_BREAK,
-    STATE_LONG_BREAK,
-    STATE_POMODORO,
-    STATE_WAIT_FOR_INPUT,
-  };
-
-  enum PomodoroCommand
-  {
-    COMMAND_NOTHING    = 0,
-    COMMAND_POMODORO   = 1,
-    COMMAND_BREAK      = 2,
-    COMMAND_LONG_BREAK = 3,
-  }
-
-  // all time is in seconds (except "ticks", obviously)
-  private ui int limit;
-
-  private ui PomodoroState timerState;
-  private ui bool initialized;
-
-  private ui int time;
-  private ui int ticks;
-  private ui int breakRemaining;
-  private ui int finishedPomodoroNumber;
-
-  private ui int  oldLevelTime;
-  private ui bool isPaused;
-  private ui bool isInputReceived;
-
-  ui int GetLimit()
-  {
-    return CVar.GetCVar("PomodoroDuration").GetInt() * 60;
-  }
-
-  ui int GetBreakLimit()
-  {
-    return CVar.GetCVar("PomodoroBreakDuration").GetInt() * 60;
-  }
-
-  ui int GetLongBreakLimit()
-  {
-    return CVar.GetCVar("PomodoroLongBreakDuration").GetInt() * 60;
-  }
-
-  ui int GetEnabled()
-  {
-    return CVar.GetCVar("PomodoroOn").GetInt();
-  }
-
-  ui int GetCommand()
-  {
-    return CVar.GetCVar("PomodoroCommand").GetInt();
-  }
-
-  ui void ResetCommand()
-  {
-    CVar.GetCVar("PomodoroCommand").SetInt(0);
-  }
-
-  ui string FormatTime(int seconds)
-  {
-    return StringStruct.Format( "%02d:%02d"
-                              , seconds / 60
-                              , seconds % 60
-                              );
-  }
-
-  ui void SetPomodoroState()
-  {
-    time       = 0;
-    timerState = STATE_POMODORO;
-    limit      = GetLimit();
-
-    Console.Printf("Pomodoro started, timer: %s", FormatTime(limit));
-  }
-
-  ui void SetBreakState()
-  {
-    time           = 0;
-    timerState     = STATE_BREAK;
-    limit          = GetBreakLimit();
-    breakRemaining = limit + 1;
-  }
-
-  ui void SetLongBreakState()
-  {
-    time           = 0;
-    timerState     = STATE_LONG_BREAK;
-    limit          = GetLongBreakLimit();
-    breakRemaining = limit + 1;
-  }
-
-  ui void SetWaitForInputState()
-  {
-    time       = 0;
-    timerState = STATE_WAIT_FOR_INPUT;
-    isInputReceived = false;
-
-    Console.Printf("Continue playing.");
-  }
-
-  ui void Initialize()
-  {
-    timerState = STATE_POMODORO;
-
-    time  = 0;
-    ticks = 0;
-
-    limit = GetLimit();
-
-    finishedPomodoroNumber = 0;
-
-    oldLevelTime = 0;
-    isPaused     = false;
-
-    initialized = true;
-  }
+  // public: ///////////////////////////////////////////////////////////////////
 
   override void UiTick()
   {
@@ -194,5 +76,131 @@ class PomodoroEventHandler : StaticEventHandler
 
     return false;
   }
+
+  // private: //////////////////////////////////////////////////////////////////
+
+  enum PomodoroState
+  {
+    STATE_BREAK,
+    STATE_LONG_BREAK,
+    STATE_POMODORO,
+    STATE_WAIT_FOR_INPUT,
+  };
+
+  enum PomodoroCommand
+  {
+    COMMAND_NOTHING    = 0,
+    COMMAND_POMODORO   = 1,
+    COMMAND_BREAK      = 2,
+    COMMAND_LONG_BREAK = 3,
+  }
+
+  // private: //////////////////////////////////////////////////////////////////
+
+  private ui int GetLimit()
+  {
+    return CVar.GetCVar("PomodoroDuration").GetInt() * 60;
+  }
+
+  private ui int GetBreakLimit()
+  {
+    return CVar.GetCVar("PomodoroBreakDuration").GetInt() * 60;
+  }
+
+  private ui int GetLongBreakLimit()
+  {
+    return CVar.GetCVar("PomodoroLongBreakDuration").GetInt() * 60;
+  }
+
+  private ui int GetEnabled()
+  {
+    return CVar.GetCVar("PomodoroOn").GetInt();
+  }
+
+  private ui int GetCommand()
+  {
+    return CVar.GetCVar("PomodoroCommand").GetInt();
+  }
+
+  private ui void ResetCommand()
+  {
+    CVar.GetCVar("PomodoroCommand").SetInt(0);
+  }
+
+  private ui string FormatTime(int seconds)
+  {
+    return String.Format( "%02d:%02d"
+                        , seconds / 60
+                        , seconds % 60
+                        );
+  }
+
+  private ui void SetPomodoroState()
+  {
+    time       = 0;
+    timerState = STATE_POMODORO;
+    limit      = GetLimit();
+
+    Console.Printf("Pomodoro started, timer: %s", FormatTime(limit));
+  }
+
+  private ui void SetBreakState()
+  {
+    time           = 0;
+    timerState     = STATE_BREAK;
+    limit          = GetBreakLimit();
+    breakRemaining = limit + 1;
+  }
+
+  private ui void SetLongBreakState()
+  {
+    time           = 0;
+    timerState     = STATE_LONG_BREAK;
+    limit          = GetLongBreakLimit();
+    breakRemaining = limit + 1;
+  }
+
+  private ui void SetWaitForInputState()
+  {
+    time       = 0;
+    timerState = STATE_WAIT_FOR_INPUT;
+    isInputReceived = false;
+
+    Console.Printf("Continue playing.");
+  }
+
+  private ui void Initialize()
+  {
+    timerState = STATE_POMODORO;
+
+    time  = 0;
+    ticks = 0;
+
+    limit = GetLimit();
+
+    finishedPomodoroNumber = 0;
+
+    oldLevelTime = 0;
+    isPaused     = false;
+
+    initialized = true;
+  }
+
+  // private: //////////////////////////////////////////////////////////////////
+
+  // all time is in seconds (except "ticks", obviously)
+  private ui int limit;
+
+  private ui PomodoroState timerState;
+  private ui bool initialized;
+
+  private ui int time;
+  private ui int ticks;
+  private ui int breakRemaining;
+  private ui int finishedPomodoroNumber;
+
+  private ui int  oldLevelTime;
+  private ui bool isPaused;
+  private ui bool isInputReceived;
 
 } // class PomodoroEventHandler : StaticEventHandler
